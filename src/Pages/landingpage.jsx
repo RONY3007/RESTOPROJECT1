@@ -258,15 +258,15 @@ export default function BookingPage() {
             <div className="contact-info">
               <div className="contact-item">
                 <Phone className="contact-icon" />
-                <span>+1 (555) 123-4567</span>
+                <span>+ 0477 225 8462</span>
               </div>
               <div className="contact-item">
                 <Mail className="contact-icon" />
-                <span>reservations@enkeysresidency.com</span>
+                <span>enkeysresidency@gmail.com</span>
               </div>
               <div className="contact-item">
                 <MapPin className="contact-icon" />
-                <span>123 Luxury Street, City</span>
+                <span>Pathirappaly, Alappuzha 688521</span>
               </div>
             </div>
           </div>
