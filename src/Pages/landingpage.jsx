@@ -3,6 +3,18 @@ import { Calendar, Users, MapPin, Phone, Mail } from 'lucide-react';
 import '../styles/landingpage.css'; // Import the CSS file
 
 export default function BookingPage() {
+  // Add availableAddons array
+  const availableAddons = [
+    'Airport Transfer',
+    'Extra Bed',
+    'Late Checkout',
+    'Early Checkin',
+    'Breakfast',
+    'Spa Services',
+    'Room Service',
+    'Laundry Service'
+  ];
+
   const [formData, setFormData] = useState({
     roomType: 'suite',
     guests: 2,
@@ -11,7 +23,8 @@ export default function BookingPage() {
     fullName: '',
     email: '',
     phone: '',
-    specialRequests: ''
+    specialRequests: '',
+    addonsSelected: [] // <-- Initialize addonsSelected
   });
 
   const handleInputChange = (e) => {
@@ -26,6 +39,26 @@ export default function BookingPage() {
     e.preventDefault();
     console.log('Booking submitted:', formData);
     alert('Booking request submitted successfully!');
+  };
+
+  const handleAddonToggle = (addon) => {
+    setFormData(prev => ({
+      ...prev,
+      addonsSelected: prev.addonsSelected.includes(addon)
+        ? prev.addonsSelected.filter(a => a !== addon)
+        : [...prev.addonsSelected, addon]
+    }));
+  };
+
+  const addonPrices = {
+    'Airport Transfer': 500,
+    'Extra Bed': 1000,
+    'Late Checkout': 500,
+    'Early Checkin': 500,
+    'Breakfast': 300,
+    'Spa Services': 2000,
+    'Room Service': 800,
+    'Laundry Service': 400
   };
 
   return (
@@ -89,6 +122,9 @@ export default function BookingPage() {
                 </select>
               </div>
 
+              
+
+              
               {/* Number of Guests */}
               <div className="form-group">
                 <label className="form-label">
@@ -145,7 +181,7 @@ export default function BookingPage() {
             {/* Guest Information */}
             <div className="section-divider">
               <h3 className="section-title">Guest Information</h3>
-              
+
               <div className="guest-info-grid">
                 <div className="form-group">
                   <label className="form-label">
@@ -193,6 +229,41 @@ export default function BookingPage() {
               </div>
             </div>
 
+            {/* Add-ons Section */}
+              <div className="section-divider">
+                <h3 className="section-title">Add-ons & Services</h3>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '12px',
+                  marginTop: '16px'
+                }}>
+                  {availableAddons.map(addon => (
+                    <label key={addon} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      cursor: 'pointer',
+                      padding: '8px',
+                      border: '1px solid #e0e0e0',
+                      borderRadius: '4px',
+                      background: formData.addonsSelected.includes(addon) ? '#f0f8ff' : 'white'
+                    }}>
+                      <input
+                        type="checkbox"
+                        checked={formData.addonsSelected.includes(addon)}
+                        onChange={() => handleAddonToggle(addon)}
+                        style={{ margin: 0 }}
+                      />
+                      <span style={{ fontSize: '14px' }}>{addon}</span>
+                      <span style={{ marginLeft: 'auto', fontWeight: 500, color: '#888' }}>
+                        ₹{addonPrices[addon]}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+           
             {/* Special Requests */}
             <div className="special-requests">
               <label className="form-label">
@@ -229,6 +300,18 @@ export default function BookingPage() {
                   <div className="summary-item">
                     <span>Check-out:</span>
                     <span className="summary-value">{new Date(formData.checkOut).toLocaleDateString()}</span>
+                  </div>
+                )}
+                {formData.addonsSelected && formData.addonsSelected.length > 0 && (
+                  <div className="summary-item">
+                    <span>Add-ons:</span>
+                    <span className="summary-value">
+                      {formData.addonsSelected.map(addon => (
+                        <span key={addon}>
+                          {addon} (₹{addonPrices[addon]}){', '}
+                        </span>
+                      ))}
+                    </span>
                   </div>
                 )}
               </div>
