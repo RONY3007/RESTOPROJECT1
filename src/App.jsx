@@ -1,11 +1,19 @@
-// import BookingPageDemo from "./Pages/demobooking";
+
 import BookingPage from "./Pages/landingpage";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import PaymentPage from "./Pages/paymentpage";
 
 export default function App() {
   return (
     <>
-      <BookingPage/>
-      {/* < BookingPageDemo/> */}
+      <Router>
+      <Routes>
+        <Route path="/" element={<BookingPage/>} />
+        <Route path="/payment" element={<PaymentPage/>} />
+       
+      </Routes>
+    </Router>
+      
 
     </>
   );
