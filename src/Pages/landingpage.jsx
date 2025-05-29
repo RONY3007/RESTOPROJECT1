@@ -224,23 +224,55 @@ export default function BookingPage() {
     setLoading(true);
     debugLog('Form validation passed, preparing booking data...');
 
-    // Prepare data for backend (BookingRequestDTO)
+    // Prepare data for backend (BookingRequestDTO) - exact format as your working JSON
     const bookingData = {
       roomTypeId: parseInt(formData.roomTypeId),
+      guests: parseInt(formData.guests),
       checkIn: formData.checkIn,
       checkOut: formData.checkOut,
       fullName: formData.fullName.trim(),
       email: formData.email.trim(),
       phone: formData.phone.trim(),
-      guests: parseInt(formData.guests),
       specialRequests: formData.specialRequests?.trim() || '',
       addonsSelected: formData.addonsSelected
     };
 
-    debugLog('Booking data to submit:', bookingData);
+    debugLog('Booking data object:', bookingData);
+    debugLog('Booking data as JSON string:', JSON.stringify(bookingData, null, 2));
+    debugLog('Data types check:', {
+      roomTypeId: typeof bookingData.roomTypeId,
+      guests: typeof bookingData.guests,
+      checkIn: typeof bookingData.checkIn,
+      checkOut: typeof bookingData.checkOut,
+      fullName: typeof bookingData.fullName,
+      email: typeof bookingData.email,
+      phone: typeof bookingData.phone,
+      specialRequests: typeof bookingData.specialRequests,
+      addonsSelected: Array.isArray(bookingData.addonsSelected) ? 'array' : typeof bookingData.addonsSelected,
+      addonsSelectedLength: bookingData.addonsSelected.length
+    });
+
+    // Validate data before sending
+    if (!bookingData.roomTypeId || isNaN(bookingData.roomTypeId)) {
+      debugLog('ERROR: Invalid roomTypeId:', bookingData.roomTypeId);
+      toast.error('Invalid room type selected');
+      setLoading(false);
+      return;
+    }
+
+    if (!bookingData.guests || isNaN(bookingData.guests)) {
+      debugLog('ERROR: Invalid guests:', bookingData.guests);
+      toast.error('Invalid number of guests');
+      setLoading(false);
+      return;
+    }
 
     try {
       debugLog('Sending booking request...');
+      debugLog('Request URL:', 'http://192.168.1.15:8080/api/bookings');
+      debugLog('Request headers:', {
+        'Content-Type': 'application/json',
+      });
       
       const response = await axios.post('http://192.168.1.15:8080/api/bookings', bookingData, {
         timeout: 15000, // 15 second timeout
@@ -250,6 +282,8 @@ export default function BookingPage() {
       });
 
       debugLog('Booking response received:', response.data);
+      debugLog('Response status:', response.status);
+      debugLog('Response headers:', response.headers);
       
       if (response.data && response.data.id) {
         toast.success(`Booking successful! Booking ID: ${response.data.id}`);
@@ -261,11 +295,18 @@ export default function BookingPage() {
       }
       
     } catch (err) {
-      debugLog('Booking submission error:', {
+      debugLog('Booking submission error details:', {
         message: err.message,
         response: err.response?.data,
         status: err.response?.status,
-        code: err.code
+        statusText: err.response?.statusText,
+        code: err.code,
+        config: {
+          url: err.config?.url,
+          method: err.config?.method,
+          data: err.config?.data,
+          headers: err.config?.headers
+        }
       });
       
       let errorMessage = 'Failed to create booking. Please try again.';
@@ -278,6 +319,8 @@ export default function BookingPage() {
         errorMessage = 'Invalid booking data. Please check your inputs.';
       } else if (err.response?.status === 500) {
         errorMessage = 'Server error. Please try again later.';
+      } else if (err.code === 'ERR_NETWORK') {
+        errorMessage = 'Network error. Please check your connection and try again.';
       }
       
       setError(errorMessage);
