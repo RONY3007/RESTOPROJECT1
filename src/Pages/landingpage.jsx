@@ -45,13 +45,13 @@ export default function BookingPage() {
         
         // Make API calls with timeout and better error handling
         const [roomTypesResponse, addonsResponse] = await Promise.allSettled([
-          axios.get('http://192.168.1.15:8080/api/rooms/types', {
+          axios.get('http://192.168.1.14:8080/api/rooms/types', {
             timeout: 10000, // 10 second timeout
             headers: {
               'Content-Type': 'application/json',
             }
           }),
-          axios.get('http://192.168.1.15:8080/api/addons', {
+          axios.get('http://192.168.1.14:8080/api/addons', {
             timeout: 10000,
             headers: {
               'Content-Type': 'application/json',
@@ -214,6 +214,7 @@ export default function BookingPage() {
     e.preventDefault();
     debugLog('Form submission started');
     setError(null);
+      // const totalPrice = calculateTotalPrice();
 
     if (!validateForm()) {
       debugLog('Form validation failed');
@@ -346,6 +347,30 @@ export default function BookingPage() {
 
   debugLog('Rendering main booking form');
 
+  const calculateTotalPrice = () => {
+  // Find selected room type price
+  const roomType = roomTypes.find(type => type.id === parseInt(formData.roomTypeId));
+  const roomPrice = roomType?.basePrice ? Number(roomType.basePrice) : 0;
+
+  // Calculate nights
+  let nights = 1;
+  if (formData.checkIn && formData.checkOut) {
+    const checkInDate = new Date(formData.checkIn);
+    const checkOutDate = new Date(formData.checkOut);
+    const diffTime = checkOutDate - checkInDate;
+    nights = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+  }
+
+  // Add-ons total
+  const addonsTotal = formData.addonsSelected.reduce((sum, addonName) => {
+    const addon = addons.find(a => a.name === addonName);
+    return sum + (addon?.price ? Number(addon.price) : 0);
+  }, 0);
+
+  // Total = (room price * nights) + add-ons
+  return (roomPrice * nights) + addonsTotal;
+};
+
   return (
     <div className="booking-page">
       <ToastContainer position="top-right" autoClose={5000} />
@@ -419,7 +444,7 @@ export default function BookingPage() {
                     <option value="">Select a room type</option>
                     {roomTypes.map(type => (
                       <option key={type.id} value={type.id}>
-                        {type.name} {type.price ? `- ₹${type.price}/night` : ''}
+                        {type.name} {type.basePrice ? `- ₹${type.basePrice}/night` : ''}
                       </option>
                     ))}
                   </select>
@@ -641,7 +666,7 @@ export default function BookingPage() {
               </div>
 
               {/* Submit Button */}
-              <button
+             <button
                 type="submit"
                 className="submit-btn"
                 disabled={loading || isFetching || roomTypes.length === 0}
@@ -659,7 +684,9 @@ export default function BookingPage() {
                   transition: 'background-color 0.2s ease'
                 }}
               >
-                {loading ? 'Processing...' : 'Book Now'}
+                {loading
+                  ? 'Processing...'
+                  : `Book Now (₹${calculateTotalPrice()})`}
               </button>
 
               <p className="disclaimer" style={{ 

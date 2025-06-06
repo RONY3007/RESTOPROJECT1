@@ -16,6 +16,7 @@ import {
 
 export default function PaymentPage() {
   const location = useLocation();
+  const { bookingId, totalPrice } = location.state || {};
 
   // If coming from booking page, use state; else fallback to dummy data
   const initialBookingData = location.state
@@ -691,7 +692,7 @@ export default function PaymentPage() {
                         color: "#007bff",
                       }}
                     >
-                      ₹{bookingData.totalAmount.toLocaleString()}
+                     ₹{totalPrice}
                     </span>
                   </div>
                 </div>
