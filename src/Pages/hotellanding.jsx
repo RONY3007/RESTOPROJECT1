@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Star, Wifi, Car, Coffee, Waves, Phone, Mail } from 'lucide-react';
 import "../styles/hotellanding.css"
+import { useNavigate } from 'react-router-dom';
 
 const HotelLandingPage = () => {
 const [property, setProperty] = useState(null);
@@ -10,11 +11,13 @@ const [property, setProperty] = useState(null);
   const [error, setError] = useState(null);
   const [roomsError, setRoomsError] = useState(null);
 
+  const navigate = useNavigate();
+
    useEffect(() => {
     const fetchPropertyData = async () => {
       try {
 
-        const response = await fetch('http://192.168.1.14:8080/api/property/get-property?propertyName=The%20Raviz%20Kovalam');
+        const response = await fetch('http://192.168.1.12:8080/api/property/get-property?propertyName=The%20Raviz%20Kovalam');
         if (!response.ok) {
           throw new Error('Failed to fetch property data');
           
@@ -32,7 +35,7 @@ const [property, setProperty] = useState(null);
  const fetchRoomsData = async () => {
   try {
     console.log('[HotelLandingPage] Fetching rooms data...');
-    const response = await fetch('http://192.168.1.14:8080/api/rooms/get-property-by-name?propertyName=23 prathibhatheerum');
+    const response = await fetch('http://192.168.1.12:8080/api/rooms/get-property-by-name?propertyName=23 prathibhatheerum');
     console.log('[HotelLandingPage] Rooms fetch status:', response.status);
     const text = await response.text();
     if (![200, 301, 302].includes(response.status)) {
@@ -215,6 +218,8 @@ const [property, setProperty] = useState(null);
               <div>
                 <strong>Adults:</strong> {room.capacityAdults} &nbsp;
                 <strong>Children:</strong> {room.capacityChildren}
+                <br />
+                <button className="cta-buttonone" onClick={() => navigate('/booking')}>Book Your Stay</button>
               </div>
             </div>
           </div>
