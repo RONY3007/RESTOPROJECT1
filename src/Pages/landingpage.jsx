@@ -45,13 +45,13 @@ export default function BookingPage() {
         
         // Make API calls with timeout and better error handling
         const [roomTypesResponse, addonsResponse] = await Promise.allSettled([
-          axios.get('http://192.168.1.14:8080/api/rooms/types', {
+          axios.get('http://192.168.1.12:8080/api/rooms/types', {
             timeout: 10000, // 10 second timeout
             headers: {
               'Content-Type': 'application/json',
             }
           }),
-          axios.get('http://192.168.1.14:8080/api/addons', {
+          axios.get('http://192.168.1.12:8080/api/addons', {
             timeout: 10000,
             headers: {
               'Content-Type': 'application/json',
@@ -670,6 +670,10 @@ export default function BookingPage() {
                 type="submit"
                 className="submit-btn"
                 disabled={loading || isFetching || roomTypes.length === 0}
+                 onClick={() => {
+    if (loading || isFetching || roomTypes.length === 0) return;
+    navigate('/payment');
+  }}
                 style={{
                   width: '100%',
                   padding: '15px',

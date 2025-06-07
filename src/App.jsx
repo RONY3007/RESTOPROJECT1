@@ -9,10 +9,9 @@ export default function App() {
     <>
       <Router>
       <Routes>
-        <Route path="/" element={<BookingPage/>} />
+        <Route path="/" element={<HotelLandingPage/>} />
+        <Route path="/booking" element={<BookingPage/>} />
         <Route path="/payment" element={<PaymentPage/>} />
-        <Route path="/landing" element={<HotelLandingPage/>} />
-       
       </Routes>
     </Router>
       
