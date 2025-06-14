@@ -4,7 +4,7 @@ import "../styles/hotellanding.css"
 import { useNavigate } from 'react-router-dom';
 
 const HotelLandingPage = () => {
-const [property, setProperty] = useState(null);
+  const [property, setProperty] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [roomsLoading, setRoomsLoading] = useState(true);
@@ -12,15 +12,16 @@ const [property, setProperty] = useState(null);
   const [roomsError, setRoomsError] = useState(null);
 
   const navigate = useNavigate();
+  
+  // Define the property name (you can make this dynamic later)
+  const propertyName = "The Raviz Kovalam";
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchPropertyData = async () => {
       try {
-
-        const response = await fetch('http://192.168.1.12:8080/api/property/get-property?propertyName=The%20Raviz%20Kovalam');
+        const response = await fetch(`http://192.168.1.19:8080/api/property/get-property?propertyName=${encodeURIComponent(propertyName)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch property data');
-          
         }
         const data = await response.json();
         setProperty(data);
@@ -32,36 +33,36 @@ const [property, setProperty] = useState(null);
       }
     };
 
- const fetchRoomsData = async () => {
-  try {
-    console.log('[HotelLandingPage] Fetching rooms data...');
-    const response = await fetch('http://192.168.1.12:8080/api/rooms/get-property-by-name?propertyName=23 prathibhatheerum');
-    console.log('[HotelLandingPage] Rooms fetch status:', response.status);
-    const text = await response.text();
-    if (![200, 301, 302].includes(response.status)) {
-      console.error('[HotelLandingPage] Rooms fetch response text:', text);
-      throw new Error('Failed to fetch rooms data');
-    }
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      throw new Error('Rooms response is not valid JSON');
-    }
-    console.log('[HotelLandingPage] Rooms data fetched:', data);
-    setRooms(Array.isArray(data) ? data : [data]);
-  } catch (err) {
-    setRoomsError(err.message);
-    console.error('[HotelLandingPage] Rooms fetch error:', err);
-  } finally {
-    setRoomsLoading(false);
-    console.log('[HotelLandingPage] Rooms data fetch completed');
-  }
-};
+    const fetchRoomsData = async () => {
+      try {
+        console.log('[HotelLandingPage] Fetching rooms data...');
+        const response = await fetch(`http://192.168.1.19:8080/api/rooms/get-room-by-property-name?propertyName=${encodeURIComponent(propertyName)}`);
+        console.log('[HotelLandingPage] Rooms fetch status:', response.status);
+        const text = await response.text();
+        if (![200, 301, 302].includes(response.status)) {
+          console.error('[HotelLandingPage] Rooms fetch response text:', text);
+          throw new Error('Failed to fetch rooms data');
+        }
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          throw new Error('Rooms response is not valid JSON');
+        }
+        console.log('[HotelLandingPage] Rooms data fetched:', data);
+        setRooms(Array.isArray(data) ? data : [data]);
+      } catch (err) {
+        setRoomsError(err.message);
+        console.error('[HotelLandingPage] Rooms fetch error:', err);
+      } finally {
+        setRoomsLoading(false);
+        console.log('[HotelLandingPage] Rooms data fetch completed');
+      }
+    };
 
     fetchPropertyData();
     fetchRoomsData();
-  }, []);
+  }, [propertyName]); 
 
   if (loading) {
     return (
@@ -181,7 +182,7 @@ const [property, setProperty] = useState(null);
       {/* Room Gallery Section */}
 <section className="section room-gallery-section">
   <div className="container">
-    <h2 className="section-title">Room Gallery</h2>
+    <h2 className="section-title">Rooms Available</h2>
     {roomsLoading ? (
       <div>Loading rooms...</div>
     ) : roomsError ? (
@@ -219,7 +220,14 @@ const [property, setProperty] = useState(null);
                 <strong>Adults:</strong> {room.capacityAdults} &nbsp;
                 <strong>Children:</strong> {room.capacityChildren}
                 <br />
-                <button className="cta-buttonone" onClick={() => navigate('/booking')}>Book Your Stay</button>
+               <button
+  className="cta-buttonone"
+  onClick={() => navigate(`/booking/${encodeURIComponent(propertyName)}`, {
+    state: { room: { id: room.id, roomTypeName: room.roomTypeName, pricePerNight: room.pricePerNight, capacityAdults: room.capacityAdults } }
+  })}
+>
+  Book Your Stay
+</button>
               </div>
             </div>
           </div>
@@ -233,7 +241,7 @@ const [property, setProperty] = useState(null);
       {/* Contact Section */}
       <section className="section contact-section">
         <div className="container">
-          <h2 className="section-title">Contact Us</h2>
+          <h2 className="section-title" style={{color:"white"}}>Contact Us</h2>
           <div className="contact-grid">
             <div className="contact-item">
               <div className="contact-icon">
